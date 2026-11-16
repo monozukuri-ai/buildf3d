@@ -39,7 +39,7 @@ class RegistryTests(unittest.TestCase):
             ) as request,
             patch.object(release.time, "time_ns", return_value=12345),
         ):
-            self.assertEqual(release.published_files(refresh=True), {})
+            self.assertEqual(release.published_files(), {})
         (metadata_request,) = request.call_args.args
         self.assertEqual(
             metadata_request.full_url,
@@ -56,8 +56,11 @@ class RegistryTests(unittest.TestCase):
             return_value=io.BytesIO(json.dumps(data).encode()),
         ) as request:
             self.assertEqual(release.published_files(), {"file.whl": "abc"})
-        request.assert_called_once_with(
-            f"https://pypi.org/pypi/buildf3d/{release.VERSION}/json", timeout=30
+        (metadata_request,) = request.call_args.args
+        self.assertTrue(
+            metadata_request.full_url.startswith(
+                f"https://pypi.org/pypi/buildf3d/{release.VERSION}/json?_verification="
+            )
         )
 
     def test_unpublished_version(self):
@@ -163,25 +166,25 @@ class StagingTests(unittest.TestCase):
         release.prepare_pypi(self.bundle)
         self.assertEqual(self.registry.call_count, 3)
         self.assertEqual(self.sleep.call_count, 2)
-        self.registry.assert_called_with(refresh=True)
+        self.registry.assert_called_with()
 
     def test_staging_does_not_wait_for_metadata(self):
         release.prepare_pypi(self.bundle, self.output)
-        self.registry.assert_called_once_with(refresh=False)
+        self.registry.assert_called_once_with()
         self.sleep.assert_not_called()
 
     def test_verification_rejects_conflicting_hash_without_retry(self):
         self.registry.return_value = {"one.whl": "0" * 64}
         with self.assertRaises(SystemExit):
             release.prepare_pypi(self.bundle)
-        self.registry.assert_called_once_with(refresh=True)
+        self.registry.assert_called_once_with()
         self.sleep.assert_not_called()
 
     def test_verification_rejects_unexpected_files_without_retry(self):
         self.registry.return_value = {"unexpected.whl": "0" * 64}
         with self.assertRaises(SystemExit):
             release.prepare_pypi(self.bundle)
-        self.registry.assert_called_once_with(refresh=True)
+        self.registry.assert_called_once_with()
         self.sleep.assert_not_called()
 
     def test_different_remote_hash_prevents_staging(self):

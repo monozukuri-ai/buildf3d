@@ -23,14 +23,11 @@ def check_tag(tag):
     print(f"Release version: {VERSION}")
 
 
-def published_files(refresh=False):
-    url = f"https://pypi.org/pypi/buildf3d/{VERSION}/json"
-    request = url
-    if refresh:
-        request = urllib.request.Request(
-            f"{url}?_verification={time.time_ns()}",
-            headers={"Cache-Control": "no-cache"},
-        )
+def published_files():
+    url = (
+        f"https://pypi.org/pypi/buildf3d/{VERSION}/json?_verification={time.time_ns()}"
+    )
+    request = urllib.request.Request(url, headers={"Cache-Control": "no-cache"})
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
             metadata = json.load(response)
@@ -53,7 +50,7 @@ def prepare_pypi(bundle, output=None):
     files = {path.name: path for path in bundle.iterdir() if path.name != "SHA256SUMS"}
     attempts = VERIFY_ATTEMPTS if output is None else 1
     for attempt in range(1, attempts + 1):
-        published = published_files(refresh=output is None)
+        published = published_files()
         require(published.keys() <= files.keys(), "Unexpected files already on PyPI")
         for name, digest in published.items():
             require(
