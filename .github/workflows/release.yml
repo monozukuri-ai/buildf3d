@@ -1,0 +1,140 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate the release tag
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+      - name: Match the tag to the package version
+        env:
+          RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: python scripts/prepare_release.py check-tag --tag "$RELEASE_TAG"
+
+  distributions:
+    name: Build and test distributions
+    needs: validate
+    uses: ./.github/workflows/ci.yml
+
+  prepare:
+    name: Verify the publication bundle
+    needs: distributions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          version: "0.12.17"
+          python-version: "3.11"
+          enable-cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: checked-distributions
+          path: bundle
+      - run: (cd bundle && sha256sum -c SHA256SUMS)
+      - run: uv run --no-project python scripts/check_distribution.py bundle bundle
+      - run: uvx --from twine==7.0.0 twine check --strict bundle/*.whl bundle/*.tar.gz
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-distributions
+          path: bundle/
+          if-no-files-found: error
+
+  pypi:
+    name: Publish to PyPI
+    needs: prepare
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/p/fusion-kit
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: release-distributions
+          path: bundle
+      - name: Check published hashes and stage missing distributions
+        id: pending
+        run: python scripts/prepare_release.py pypi bundle --output publish
+      - name: Publish with Trusted Publishing
+        if: steps.pending.outputs.pending-count != '0'
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          packages-dir: publish/
+          attestations: true
+      - name: Verify the published distributions
+        run: python scripts/prepare_release.py pypi bundle
+
+  github-release:
+    name: Publish GitHub Release
+    needs: pypi
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: release-distributions
+          path: bundle
+      - run: (cd bundle && sha256sum -c SHA256SUMS)
+      - run: python scripts/check_distribution.py bundle bundle
+      - name: Attach the checked distributions and checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" --json isDraft > release.json; then
+            if [[ "$(python -c 'import json; print(json.load(open("release.json"))["isDraft"])')" == False ]]; then
+              gh release download "$GITHUB_REF_NAME" --dir published
+              diff --recursive bundle published
+              exit 0
+            fi
+          else
+            gh release create "$GITHUB_REF_NAME" --verify-tag --draft --title "$GITHUB_REF_NAME" --generate-notes
+          fi
+          gh release upload "$GITHUB_REF_NAME" bundle/* --clobber
+          gh release download "$GITHUB_REF_NAME" --dir published
+          diff --recursive bundle published
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            gh release edit "$GITHUB_REF_NAME" --draft=false --prerelease --latest=false
+          else
+            gh release edit "$GITHUB_REF_NAME" --draft=false --prerelease=false --latest
+          fi

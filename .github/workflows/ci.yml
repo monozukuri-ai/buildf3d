@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
@@ -33,7 +34,8 @@ jobs:
       - run: cargo test -p fusion-kit-core --locked
       - run: rustup toolchain install 1.88.0 --profile minimal
       - run: cargo +1.88.0 check --workspace --all-targets --locked
-      - run: uv run --no-sync ruff check python examples tests/python tests/typing scripts/check_distribution.py scripts/verify_wheel_install.py scripts/third_party_notices.py
+      - run: uv run --no-sync ruff check python examples tests/python tests/typing tests/release scripts
+      - run: uv run --no-sync python -m unittest discover -s tests/release -v
       - run: uv run --no-sync mypy
       - run: uv run --no-sync python scripts/third_party_notices.py --check
       - run: uv run --no-sync maturin sdist --out dist
