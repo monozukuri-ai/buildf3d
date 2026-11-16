@@ -7,11 +7,15 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 
 from check_distribution import ROOT, VERSION, require
+
+VERIFY_ATTEMPTS = 12
+VERIFY_RETRY_SECONDS = 5
 
 
 def check_tag(tag):
@@ -19,10 +23,16 @@ def check_tag(tag):
     print(f"Release version: {VERSION}")
 
 
-def published_files():
+def published_files(refresh=False):
     url = f"https://pypi.org/pypi/buildf3d/{VERSION}/json"
+    request = url
+    if refresh:
+        request = urllib.request.Request(
+            f"{url}?_verification={time.time_ns()}",
+            headers={"Cache-Control": "no-cache"},
+        )
     try:
-        with urllib.request.urlopen(url, timeout=30) as response:
+        with urllib.request.urlopen(request, timeout=30) as response:
             metadata = json.load(response)
     except urllib.error.HTTPError as error:
         if error.code == 404:
@@ -41,16 +51,25 @@ def prepare_pypi(bundle, output=None):
         check=True,
     )
     files = {path.name: path for path in bundle.iterdir() if path.name != "SHA256SUMS"}
-    published = published_files()
-    require(published.keys() <= files.keys(), "Unexpected files already on PyPI")
-    for name, digest in published.items():
-        require(
-            hashlib.sha256(files[name].read_bytes()).hexdigest() == digest,
-            f"PyPI file differs from the checked bundle: {name}",
+    attempts = VERIFY_ATTEMPTS if output is None else 1
+    for attempt in range(1, attempts + 1):
+        published = published_files(refresh=output is None)
+        require(published.keys() <= files.keys(), "Unexpected files already on PyPI")
+        for name, digest in published.items():
+            require(
+                hashlib.sha256(files[name].read_bytes()).hexdigest() == digest,
+                f"PyPI file differs from the checked bundle: {name}",
+            )
+        missing = files.keys() - published.keys()
+        if output is not None or not missing:
+            break
+        require(attempt < attempts, f"Files missing from PyPI: {sorted(missing)}")
+        print(
+            f"Waiting for PyPI metadata ({attempt}/{attempts}): {sorted(missing)}",
+            flush=True,
         )
-    missing = files.keys() - published.keys()
+        time.sleep(VERIFY_RETRY_SECONDS)
     if output is None:
-        require(not missing, f"Files missing from PyPI: {sorted(missing)}")
         print("All PyPI distributions match the checked bundle")
         return
     output.mkdir(parents=True, exist_ok=False)

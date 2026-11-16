@@ -29,6 +29,25 @@ class TagTests(unittest.TestCase):
 
 
 class RegistryTests(unittest.TestCase):
+    def test_fresh_verification_bypasses_cached_metadata(self):
+        data = {"urls": []}
+        with (
+            patch.object(
+                release.urllib.request,
+                "urlopen",
+                return_value=io.BytesIO(json.dumps(data).encode()),
+            ) as request,
+            patch.object(release.time, "time_ns", return_value=12345),
+        ):
+            self.assertEqual(release.published_files(refresh=True), {})
+        (metadata_request,) = request.call_args.args
+        self.assertEqual(
+            metadata_request.full_url,
+            f"https://pypi.org/pypi/buildf3d/{release.VERSION}/json?_verification=12345",
+        )
+        self.assertEqual(metadata_request.get_header("Cache-control"), "no-cache")
+        self.assertEqual(request.call_args.kwargs, {"timeout": 30})
+
     def test_read_published_hashes(self):
         data = {"urls": [{"filename": "file.whl", "digests": {"sha256": "abc"}}]}
         with patch.object(
@@ -89,6 +108,7 @@ class StagingTests(unittest.TestCase):
         self.registry = self.enterContext(
             patch.object(release, "published_files", return_value={})
         )
+        self.sleep = self.enterContext(patch.object(release.time, "sleep"))
         self.enterContext(
             patch.dict(release.os.environ, {"GITHUB_OUTPUT": str(self.github_output)})
         )
@@ -131,6 +151,38 @@ class StagingTests(unittest.TestCase):
     def test_post_upload_verification_requires_every_file(self):
         with self.assertRaises(SystemExit):
             release.prepare_pypi(self.bundle)
+        self.assertEqual(self.registry.call_count, release.VERIFY_ATTEMPTS)
+        self.assertEqual(self.sleep.call_count, release.VERIFY_ATTEMPTS - 1)
+
+    def test_post_upload_verification_waits_for_all_metadata(self):
+        self.registry.side_effect = [
+            {},
+            {"one.whl": self.files["one.whl"]},
+            self.files,
+        ]
+        release.prepare_pypi(self.bundle)
+        self.assertEqual(self.registry.call_count, 3)
+        self.assertEqual(self.sleep.call_count, 2)
+        self.registry.assert_called_with(refresh=True)
+
+    def test_staging_does_not_wait_for_metadata(self):
+        release.prepare_pypi(self.bundle, self.output)
+        self.registry.assert_called_once_with(refresh=False)
+        self.sleep.assert_not_called()
+
+    def test_verification_rejects_conflicting_hash_without_retry(self):
+        self.registry.return_value = {"one.whl": "0" * 64}
+        with self.assertRaises(SystemExit):
+            release.prepare_pypi(self.bundle)
+        self.registry.assert_called_once_with(refresh=True)
+        self.sleep.assert_not_called()
+
+    def test_verification_rejects_unexpected_files_without_retry(self):
+        self.registry.return_value = {"unexpected.whl": "0" * 64}
+        with self.assertRaises(SystemExit):
+            release.prepare_pypi(self.bundle)
+        self.registry.assert_called_once_with(refresh=True)
+        self.sleep.assert_not_called()
 
     def test_different_remote_hash_prevents_staging(self):
         self.registry.return_value = {"one.whl": "0" * 64}
