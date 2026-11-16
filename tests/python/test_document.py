@@ -5,7 +5,7 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
-import fusion_kit as fusion
+import buildf3d as fusion
 import pytest
 
 from .manifest_fixtures import (
@@ -337,7 +337,7 @@ def test_cli_document_layer(version, code, tmp_path):
             "-c",
             (
                 "import sys; sys.stdout.reconfigure(encoding='ascii'); "
-                "from fusion_kit.cli import main; raise SystemExit(main(sys.argv[1:]))"
+                "from buildf3d.cli import main; raise SystemExit(main(sys.argv[1:]))"
             ),
             "inspect",
             str(path),

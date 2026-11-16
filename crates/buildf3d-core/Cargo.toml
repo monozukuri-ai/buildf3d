@@ -1,5 +1,5 @@
 [package]
-name = "fusion-kit-core"
+name = "buildf3d-core"
 description = "Python-independent core for reading Autodesk Fusion archives"
 version.workspace = true
 edition.workspace = true

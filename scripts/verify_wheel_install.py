@@ -18,19 +18,19 @@ import sys
 import sysconfig
 from pathlib import Path
 
-import fusion_kit
-from fusion_kit import _native
+import buildf3d
+from buildf3d import _native
 
 assert platform.python_implementation() == "CPython"
 assert not sysconfig.get_config_var("Py_GIL_DISABLED")
 extension = Path(_native.__file__).resolve()
 assert extension.is_relative_to(Path(sys.prefix).resolve())
 assert hashlib.sha256(extension.read_bytes()).hexdigest() == sys.argv[1]
-assert fusion_kit.__version__ == _native.__core_version__ == importlib.metadata.version("fusion-kit")
-assert not importlib.metadata.requires("fusion-kit")
+assert buildf3d.__version__ == _native.__core_version__ == importlib.metadata.version("buildf3d")
+assert not importlib.metadata.requires("buildf3d")
 make_zip = runpy.run_path(sys.argv[2])["make_zip"]
 data, _ = make_zip(method=93)
-archive = fusion_kit.read(data)
+archive = buildf3d.read(data)
 assert archive.read_member("payload.bin") == b"hello\\x00world"
 assert archive.verify().status == "complete"
 print(platform.platform(), platform.machine(), sys.version.split()[0], extension.name, sys.argv[1])
@@ -53,12 +53,12 @@ def main():
             name for name in archive.namelist() if name.endswith((".so", ".pyd"))
         ]
         digest = hashlib.sha256(archive.read(extension)).hexdigest()
-    with tempfile.TemporaryDirectory(prefix="fusion-kit-install-") as directory:
+    with tempfile.TemporaryDirectory(prefix="buildf3d-install-") as directory:
         env = Path(directory) / "env"
         venv.EnvBuilder(with_pip=True).create(env)
         scripts = env / ("Scripts" if os.name == "nt" else "bin")
         python = scripts / ("python.exe" if os.name == "nt" else "python")
-        cli = scripts / ("fusion-kit.exe" if os.name == "nt" else "fusion-kit")
+        cli = scripts / ("buildf3d.exe" if os.name == "nt" else "buildf3d")
         pip = [python, "-I", "-m", "pip", "--isolated", "install", "--no-cache-dir"]
         subprocess.run(
             [*pip, "--no-index", "--no-deps", wheel], check=True, cwd=directory

@@ -43,7 +43,7 @@ def cargo_packages():
 
 def render():
     lines = [
-        "fusion-kit third-party notices",
+        "buildf3d third-party notices",
         "",
         "Format references",
         "cadmpeg project, F3D format notes (CC BY 4.0), revision",

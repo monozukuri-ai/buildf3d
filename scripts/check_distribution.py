@@ -1,4 +1,4 @@
-"""Inspect fusion-kit wheels and sdist and assemble a checksummed CI bundle."""
+"""Inspect buildf3d wheels and sdist and assemble a checksummed CI bundle."""
 
 import argparse
 import base64
@@ -22,7 +22,7 @@ PROJECT = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
 VERSION = tomllib.loads((ROOT / "Cargo.toml").read_text(encoding="utf-8"))["workspace"][
     "package"
 ]["version"]
-STEM = f"fusion_kit-{VERSION}"
+STEM = f"buildf3d-{VERSION}"
 LICENSE_FILES = PROJECT["license-files"]
 PLATFORMS = {
     "linux-x86_64": "manylinux_2_28_x86_64",
@@ -32,7 +32,7 @@ PLATFORMS = {
 }
 PYTHON_FILES = {
     file.relative_to(ROOT / "python").as_posix()
-    for file in (ROOT / "python/fusion_kit").iterdir()
+    for file in (ROOT / "python/buildf3d").iterdir()
     if file.suffix in {".py", ".pyi"} or file.name == "py.typed"
 }
 
@@ -73,7 +73,7 @@ def headers(data):
 def check_metadata(data):
     metadata = headers(data)
     for field, expected in (
-        ("Name", "fusion-kit"),
+        ("Name", "buildf3d"),
         ("Version", VERSION),
         ("Requires-Python", PROJECT["requires-python"]),
         ("License-Expression", PROJECT.get("license")),
@@ -245,9 +245,9 @@ def check_wheel(path, platform, audit=False):
     require(path.name == f"{STEM}-{tag}.whl", f"Unexpected wheel tag: {path.name}")
     info = f"{STEM}.dist-info"
     extension = (
-        "fusion_kit/_native.pyd"
+        "buildf3d/_native.pyd"
         if platform == "windows-x86_64"
-        else "fusion_kit/_native.abi3.so"
+        else "buildf3d/_native.abi3.so"
     )
     expected = (
         PYTHON_FILES

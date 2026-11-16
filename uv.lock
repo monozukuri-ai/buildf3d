@@ -16,7 +16,7 @@ wheels = [
 ]
 
 [[package]]
-name = "fusion-kit"
+name = "buildf3d"
 source = { editable = "." }
 
 [package.dev-dependencies]

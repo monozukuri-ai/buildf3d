@@ -4,12 +4,12 @@ import argparse
 import json
 from pathlib import Path
 
-import fusion_kit
-from fusion_kit.types import DocumentJSON, ExitCode, PackageJSON
+import buildf3d
+from buildf3d.types import DocumentJSON, ExitCode, PackageJSON
 
 
 def inspect(path: Path) -> tuple[DocumentJSON | PackageJSON, ExitCode]:
-    archive = fusion_kit.readfile(path, strict=False)
+    archive = buildf3d.readfile(path, strict=False)
     if archive.kind == "f3d":
         document = archive.read_document()
         return document.to_dict(), document.exit_code

@@ -1,6 +1,6 @@
 [package]
-name = "fusion-kit-python"
-description = "PyO3 bindings for fusion-kit-core"
+name = "buildf3d-python"
+description = "PyO3 bindings for buildf3d-core"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -12,7 +12,7 @@ name = "_native"
 crate-type = ["cdylib"]
 
 [dependencies]
-fusion-kit-core.workspace = true
+buildf3d-core.workspace = true
 pyo3.workspace = true
 serde_json.workspace = true
 

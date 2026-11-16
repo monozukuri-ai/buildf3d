@@ -5,7 +5,7 @@ import subprocess
 import sys
 import zlib
 
-import fusion_kit as fusion
+import buildf3d as fusion
 import pytest
 
 from .zip_fixtures import make_zip, patch_entry, zstd_raw
@@ -246,7 +246,7 @@ def test_cli_json_and_exit_status(case, expected, tmp_path):
     path = tmp_path / "case.f3d"
     path.write_bytes(data)
     done = subprocess.run(
-        [sys.executable, "-I", "-m", "fusion_kit", "verify", str(path), "--json"],
+        [sys.executable, "-I", "-m", "buildf3d", "verify", str(path), "--json"],
         capture_output=True,
         text=True,
         check=False,

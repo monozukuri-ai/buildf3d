@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use fusion_kit_core::{
+use buildf3d_core::{
     AssetInfo, DocumentInfo, DocumentManifest, ManifestTail, RawSpan, SegmentInfo, SegmentInstance,
     TerminalInfo,
 };
@@ -8,7 +8,7 @@ use pyo3::prelude::*;
 
 use super::reader::{PyDiagnostic, json_to_py};
 
-#[pyclass(name = "RawSpan", module = "fusion_kit", frozen)]
+#[pyclass(name = "RawSpan", module = "buildf3d", frozen)]
 #[derive(Clone)]
 pub struct PyRawSpan {
     pub(crate) inner: RawSpan,
@@ -49,7 +49,7 @@ fn spans(values: &[RawSpan]) -> Vec<PyRawSpan> {
         .collect()
 }
 
-#[pyclass(name = "TerminalInfo", module = "fusion_kit", frozen)]
+#[pyclass(name = "TerminalInfo", module = "buildf3d", frozen)]
 pub struct PyTerminalInfo {
     inner: TerminalInfo,
 }
@@ -88,7 +88,7 @@ impl PyTerminalInfo {
     }
 }
 
-#[pyclass(name = "ManifestTail", module = "fusion_kit", frozen)]
+#[pyclass(name = "ManifestTail", module = "buildf3d", frozen)]
 pub struct PyManifestTail {
     inner: ManifestTail,
 }
@@ -119,7 +119,7 @@ impl PyManifestTail {
     }
 }
 
-#[pyclass(name = "DocumentManifest", module = "fusion_kit", frozen)]
+#[pyclass(name = "DocumentManifest", module = "buildf3d", frozen)]
 pub struct PyDocumentManifest {
     inner: DocumentManifest,
 }
@@ -194,7 +194,7 @@ impl PyDocumentManifest {
     }
 }
 
-#[pyclass(name = "SegmentInstance", module = "fusion_kit", frozen, get_all)]
+#[pyclass(name = "SegmentInstance", module = "buildf3d", frozen, get_all)]
 pub struct PySegmentInstance {
     folder: String,
     meta_member: Option<String>,
@@ -211,7 +211,7 @@ impl From<&SegmentInstance> for PySegmentInstance {
     }
 }
 
-#[pyclass(name = "SegmentInfo", module = "fusion_kit", frozen)]
+#[pyclass(name = "SegmentInfo", module = "buildf3d", frozen)]
 pub struct PySegmentInfo {
     inner: SegmentInfo,
 }
@@ -240,7 +240,7 @@ impl PySegmentInfo {
     }
 }
 
-#[pyclass(name = "AssetInfo", module = "fusion_kit", frozen)]
+#[pyclass(name = "AssetInfo", module = "buildf3d", frozen)]
 pub struct PyAssetInfo {
     inner: AssetInfo,
 }
@@ -321,7 +321,7 @@ impl PyAssetInfo {
     }
 }
 
-#[pyclass(name = "DocumentInfo", module = "fusion_kit", frozen)]
+#[pyclass(name = "DocumentInfo", module = "buildf3d", frozen)]
 pub struct PyDocumentInfo {
     pub(crate) inner: Arc<DocumentInfo>,
 }

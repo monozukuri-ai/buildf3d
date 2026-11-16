@@ -3,8 +3,8 @@
 from pathlib import Path
 from typing import Literal, assert_type
 
-import fusion_kit as fusion
-from fusion_kit.types import (
+import buildf3d as fusion
+from buildf3d.types import (
     ArchiveJSON,
     DocumentJSON,
     ErrorJSON,

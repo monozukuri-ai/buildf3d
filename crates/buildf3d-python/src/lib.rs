@@ -1,4 +1,4 @@
-use fusion_kit_core::Limits;
+use buildf3d_core::Limits;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
@@ -8,7 +8,7 @@ mod reader;
 
 /// Immutable resource policy. Byte limits apply to individual archive operations;
 /// constructing this object does not allocate those amounts of memory.
-#[pyclass(name = "Limits", module = "fusion_kit", frozen)]
+#[pyclass(name = "Limits", module = "buildf3d", frozen)]
 struct PyLimits {
     inner: Limits,
 }
@@ -101,7 +101,7 @@ mod _native {
     #[pymodule_init]
     fn init(module: &Bound<'_, PyModule>) -> PyResult<()> {
         module.add("__version__", env!("CARGO_PKG_VERSION"))?;
-        module.add("__core_version__", fusion_kit_core::VERSION)?;
+        module.add("__core_version__", buildf3d_core::VERSION)?;
         Ok(())
     }
 }

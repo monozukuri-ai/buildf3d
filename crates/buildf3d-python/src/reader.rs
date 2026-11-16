@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use fusion_kit_core::{
+use buildf3d_core::{
     Archive, Diagnostic, Error, ErrorKind, InputSnapshot, MemberInfo, ReadOptions, ValidationReport,
 };
 use pyo3::exceptions::{PyException, PyKeyError};
@@ -13,13 +13,13 @@ use super::PyLimits;
 use super::document::{PyDocumentInfo, PyRawSpan};
 use super::package::{PyPackageInfo, PyReferenceInfo};
 
-pyo3::create_exception!(fusion_kit, FusionError, PyException);
-pyo3::create_exception!(fusion_kit, FormatError, FusionError);
-pyo3::create_exception!(fusion_kit, UnsupportedFeatureError, FusionError);
-pyo3::create_exception!(fusion_kit, ResourceLimitError, FusionError);
-pyo3::create_exception!(fusion_kit, ReferenceResolutionError, FusionError);
+pyo3::create_exception!(buildf3d, FusionError, PyException);
+pyo3::create_exception!(buildf3d, FormatError, FusionError);
+pyo3::create_exception!(buildf3d, UnsupportedFeatureError, FusionError);
+pyo3::create_exception!(buildf3d, ResourceLimitError, FusionError);
+pyo3::create_exception!(buildf3d, ReferenceResolutionError, FusionError);
 
-#[pyclass(name = "Diagnostic", module = "fusion_kit", frozen, get_all)]
+#[pyclass(name = "Diagnostic", module = "buildf3d", frozen, get_all)]
 pub struct PyDiagnostic {
     severity: String,
     code: String,
@@ -48,7 +48,7 @@ impl From<&Diagnostic> for PyDiagnostic {
     }
 }
 
-#[pyclass(name = "MemberInfo", module = "fusion_kit", frozen, get_all)]
+#[pyclass(name = "MemberInfo", module = "buildf3d", frozen, get_all)]
 pub struct PyMemberInfo {
     name: String,
     compression_method: u16,
@@ -75,7 +75,7 @@ impl From<&MemberInfo> for PyMemberInfo {
     }
 }
 
-#[pyclass(name = "Archive", module = "fusion_kit", frozen)]
+#[pyclass(name = "Archive", module = "buildf3d", frozen)]
 pub struct PyArchive {
     inner: Arc<Archive>,
     strict: bool,
@@ -127,7 +127,7 @@ impl PyArchive {
     }
     #[getter]
     fn documents(&self, py: Python<'_>) -> PyResult<Py<PyAny>> {
-        if matches!(self.inner.kind(), fusion_kit_core::ArchiveKind::F3z) {
+        if matches!(self.inner.kind(), buildf3d_core::ArchiveKind::F3z) {
             Ok(self
                 .read_package(py, None)?
                 .documents()
@@ -143,7 +143,7 @@ impl PyArchive {
     }
     #[getter]
     fn root_document_id(&self, py: Python<'_>) -> PyResult<Option<String>> {
-        if matches!(self.inner.kind(), fusion_kit_core::ArchiveKind::F3z) {
+        if matches!(self.inner.kind(), buildf3d_core::ArchiveKind::F3z) {
             return Ok(self.read_package(py, None)?.inner.root_document_id.clone());
         }
         Ok(self.read_document(py, None)?.inner.id.clone())
@@ -254,7 +254,7 @@ impl PyArchive {
     }
 }
 
-#[pyclass(name = "ValidationReport", module = "fusion_kit", frozen)]
+#[pyclass(name = "ValidationReport", module = "buildf3d", frozen)]
 pub struct PyValidationReport {
     inner: ValidationReport,
 }

@@ -1,6 +1,6 @@
 # Installation
 
-fusion-kit supports standard CPython 3.11 and later. Wheels include the native extension built with Rust.
+buildf3d supports standard CPython 3.11 and later. Wheels include the native extension built with Rust.
 
 ## Install from a wheel
 
@@ -18,8 +18,8 @@ The macOS wheels use a deployment target of 11.0. Installation tests run on macO
 For example, on Linux x86_64, install the downloaded wheel and check the CLI version.
 
 ```bash
-python -m pip install ./fusion_kit-0.1.0-cp311-abi3-manylinux_2_28_x86_64.whl
-fusion-kit --version
+python -m pip install ./buildf3d-0.1.0-cp311-abi3-manylinux_2_28_x86_64.whl
+buildf3d --version
 ```
 
 ## Install from source
@@ -27,9 +27,9 @@ fusion-kit --version
 You need Rust and a C compiler. The build uses the included `rust-toolchain.toml` and `Cargo.lock`.
 
 ```bash
-python -m pip install ./fusion_kit-0.1.0.tar.gz
+python -m pip install ./buildf3d-0.1.0.tar.gz
 ```
 
 To install from a source checkout, run `python -m pip install .` from the repository root.
 
-After installation, import `fusion_kit` in Python or use the `fusion-kit` command. [Python API and CLI reference](api.md)
+After installation, import `buildf3d` in Python or use the `buildf3d` command. [Python API and CLI reference](api.md)

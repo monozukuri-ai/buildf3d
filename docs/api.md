@@ -1,14 +1,14 @@
 # Python API and JSON reference
 
-fusion-kit v0.1 provides a read-only API for F3D and F3Z files on standard CPython 3.11 and later. Use `fusion_kit.readfile(path)` or `fusion_kit.read(data)` to open an archive. Construct `Limits` directly to configure resource limits. The reader creates the result objects as immutable views.
+buildf3d v0.1 provides a read-only API for F3D and F3Z files on standard CPython 3.11 and later. Use `buildf3d.readfile(path)` or `buildf3d.read(data)` to open an archive. Construct `Limits` directly to configure resource limits. The reader creates the result objects as immutable views.
 
 ## Inputs and operations
 
 ```python
 from pathlib import Path
-import fusion_kit
+import buildf3d
 
-archive = fusion_kit.readfile(Path("assembly.f3z"), strict=False)
+archive = buildf3d.readfile(Path("assembly.f3z"), strict=False)
 info = archive.read_package()
 for doc in info.documents:
     print(doc.id, doc.document_guid, doc.status)
@@ -84,16 +84,16 @@ Offsets are zero-based. An `offset_basis` of `"archive"` identifies a ZIP header
 
 `to_dict()` returns a detached copy. `to_json()` returns a JSON string with the same schema. You can edit the returned dictionaries and lists independently of the reader.
 
-`fusion_kit.types` exports literals such as `Status` and `ExitCode`, and typed dictionaries including `ArchiveJSON`, `DocumentJSON`, `PackageJSON`, `ValidationJSON`, and `ErrorJSON`. The current `schema_version` is 1. Unparsed sidecar values use the recursive `JSONValue` type. Unknown reference kinds are retained as `str | None` alongside the original JSON.
+`buildf3d.types` exports literals such as `Status` and `ExitCode`, and typed dictionaries including `ArchiveJSON`, `DocumentJSON`, `PackageJSON`, `ValidationJSON`, and `ErrorJSON`. The current `schema_version` is 1. Unparsed sidecar values use the recursive `JSONValue` type. Unknown reference kinds are retained as `str | None` alongside the original JSON.
 
 ## CLI
 
 ```bash
-fusion-kit inspect model.f3d --json
-fusion-kit inspect model.f3d --document --json
-fusion-kit inspect assembly.f3z --package --json
-fusion-kit verify assembly.f3z --json
-fusion-kit verify assembly.f3z --outer-only --json
+buildf3d inspect model.f3d --json
+buildf3d inspect model.f3d --document --json
+buildf3d inspect assembly.f3z --package --json
+buildf3d verify assembly.f3z --json
+buildf3d verify assembly.f3z --outer-only --json
 ```
 
 The CLI includes partial results when available and uses the exit codes in the status table. With `--json`, it writes one JSON result to stdout, including for argument errors. `--help` and `--version` print text and return exit code 0.

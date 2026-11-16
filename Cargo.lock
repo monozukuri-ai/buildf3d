@@ -18,6 +18,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "buildf3d-core"
+version = "0.1.0"
+dependencies = [
+ "crc32fast",
+ "flate2",
+ "serde",
+ "serde_json",
+ "sha2",
+ "zip",
+ "zstd",
+]
+
+[[package]]
+name = "buildf3d-python"
+version = "0.1.0"
+dependencies = [
+ "buildf3d-core",
+ "pyo3",
+ "serde_json",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.20.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -110,28 +132,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "626d4928326b646e70f65ed36fc7cf9f206bdb68a0019ee7c6b4709da4e084c4"
 dependencies = [
  "zlib-rs",
-]
-
-[[package]]
-name = "fusion-kit-core"
-version = "0.1.0"
-dependencies = [
- "crc32fast",
- "flate2",
- "serde",
- "serde_json",
- "sha2",
- "zip",
- "zstd",
-]
-
-[[package]]
-name = "fusion-kit-python"
-version = "0.1.0"
-dependencies = [
- "fusion-kit-core",
- "pyo3",
- "serde_json",
 ]
 
 [[package]]

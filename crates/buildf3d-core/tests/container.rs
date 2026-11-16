@@ -1,6 +1,6 @@
 use std::io::{Cursor, Write};
 
-use fusion_kit_core::{Archive, ErrorKind, Limits, ReadOptions, Status};
+use buildf3d_core::{Archive, ErrorKind, Limits, ReadOptions, Status};
 use zip::write::SimpleFileOptions;
 use zip::{CompressionMethod, ZipWriter};
 
@@ -160,7 +160,7 @@ fn public_spans_verify_hash_bounds_and_source() {
         ReadOptions::default(),
     )
     .unwrap();
-    let mut span = fusion_kit_core::RawSpan {
+    let mut span = buildf3d_core::RawSpan {
         source_sha256: archive.source_sha256().into(),
         member: "payload.bin".into(),
         offset: 0,

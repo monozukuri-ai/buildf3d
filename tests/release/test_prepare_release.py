@@ -35,8 +35,11 @@ class RegistryTests(unittest.TestCase):
             release.urllib.request,
             "urlopen",
             return_value=io.BytesIO(json.dumps(data).encode()),
-        ):
+        ) as request:
             self.assertEqual(release.published_files(), {"file.whl": "abc"})
+        request.assert_called_once_with(
+            f"https://pypi.org/pypi/buildf3d/{release.VERSION}/json", timeout=30
+        )
 
     def test_unpublished_version(self):
         error = urllib.error.HTTPError("https://pypi.org/", 404, "Not found", {}, None)

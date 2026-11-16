@@ -3,7 +3,7 @@ requires = ["maturin>=1.14,<2"]
 build-backend = "maturin"
 
 [project]
-name = "fusion-kit"
+name = "buildf3d"
 dynamic = ["version"]
 description = "Rust-backed reader for Autodesk Fusion F3D and F3Z archives"
 readme = "README.md"
@@ -24,7 +24,7 @@ classifiers = [
 ]
 
 [project.scripts]
-fusion-kit = "fusion_kit.cli:main"
+buildf3d = "buildf3d.cli:main"
 
 [dependency-groups]
 dev = [
@@ -35,9 +35,9 @@ dev = [
 ]
 
 [tool.maturin]
-manifest-path = "crates/fusion-kit-python/Cargo.toml"
+manifest-path = "crates/buildf3d-python/Cargo.toml"
 python-source = "python"
-module-name = "fusion_kit._native"
+module-name = "buildf3d._native"
 bindings = "pyo3"
 locked = true
 include = [
@@ -81,4 +81,4 @@ extend-exclude = ["target"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
-files = ["python/fusion_kit", "examples", "tests/typing"]
+files = ["python/buildf3d", "examples", "tests/typing"]

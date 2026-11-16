@@ -20,9 +20,9 @@ from typing import (
     is_typeddict,
 )
 
-import fusion_kit as fusion
+import buildf3d as fusion
 import pytest
-from fusion_kit import types as schema
+from buildf3d import types as schema
 
 from .manifest_fixtures import document, text
 from .package_fixtures import package, values
@@ -137,7 +137,7 @@ def check_signature(func, callable_object):
 
 
 def test_stub_and_native_public_members_signatures_and_readonly_views_agree():
-    source = importlib.resources.files("fusion_kit").joinpath("_native.pyi").read_text()
+    source = importlib.resources.files("buildf3d").joinpath("_native.pyi").read_text()
     classes = {
         node.name: node
         for node in ast.parse(source).body
@@ -301,7 +301,7 @@ def test_explicit_strict_overrides_do_not_change_parent_policy():
 )
 def test_cli_argument_errors_are_json_invalid_and_exit_one(arguments):
     done = subprocess.run(
-        [sys.executable, "-I", "-m", "fusion_kit", *arguments, "--json"],
+        [sys.executable, "-I", "-m", "buildf3d", *arguments, "--json"],
         capture_output=True,
         text=True,
         check=False,

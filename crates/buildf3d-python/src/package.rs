@@ -1,13 +1,13 @@
 use super::document::{PyDocumentInfo, PyRawSpan};
 use super::reader::{PyDiagnostic, json_to_py};
-use fusion_kit_core::{
+use buildf3d_core::{
     GraphInfo, GraphNode, JsonSidecar, LayerComparison, PackageDocument, PackageInfo,
     RedirectionInfo, ReferenceInfo,
 };
 use pyo3::prelude::*;
 use std::sync::Arc;
 
-#[pyclass(name = "ReferenceInfo", module = "fusion_kit", frozen, get_all)]
+#[pyclass(name = "ReferenceInfo", module = "buildf3d", frozen, get_all)]
 pub struct PyReferenceInfo {
     layer: String,
     graph_index: Option<usize>,
@@ -39,7 +39,7 @@ impl From<&ReferenceInfo> for PyReferenceInfo {
     }
 }
 
-#[pyclass(name = "GraphNode", module = "fusion_kit", frozen, get_all)]
+#[pyclass(name = "GraphNode", module = "buildf3d", frozen, get_all)]
 pub struct PyGraphNode {
     object_id: i64,
     path: Option<String>,
@@ -55,7 +55,7 @@ impl From<&GraphNode> for PyGraphNode {
     }
 }
 
-#[pyclass(name = "GraphInfo", module = "fusion_kit", frozen)]
+#[pyclass(name = "GraphInfo", module = "buildf3d", frozen)]
 pub struct PyGraphInfo {
     inner: GraphInfo,
 }
@@ -91,7 +91,7 @@ impl PyGraphInfo {
     }
 }
 
-#[pyclass(name = "PackageDocument", module = "fusion_kit", frozen)]
+#[pyclass(name = "PackageDocument", module = "buildf3d", frozen)]
 pub struct PyPackageDocument {
     pub(crate) inner: PackageDocument,
 }
@@ -126,7 +126,7 @@ impl PyPackageDocument {
     }
 }
 
-#[pyclass(name = "RedirectionInfo", module = "fusion_kit", frozen)]
+#[pyclass(name = "RedirectionInfo", module = "buildf3d", frozen)]
 pub struct PyRedirectionInfo {
     inner: RedirectionInfo,
 }
@@ -149,7 +149,7 @@ impl PyRedirectionInfo {
     }
 }
 
-#[pyclass(name = "JsonSidecar", module = "fusion_kit", frozen)]
+#[pyclass(name = "JsonSidecar", module = "buildf3d", frozen)]
 pub struct PyJsonSidecar {
     inner: JsonSidecar,
 }
@@ -171,7 +171,7 @@ impl PyJsonSidecar {
     }
 }
 
-#[pyclass(name = "LayerComparison", module = "fusion_kit", frozen, get_all)]
+#[pyclass(name = "LayerComparison", module = "buildf3d", frozen, get_all)]
 pub struct PyLayerComparison {
     graph_index: usize,
     source: String,
@@ -187,7 +187,7 @@ impl From<&LayerComparison> for PyLayerComparison {
     }
 }
 
-#[pyclass(name = "PackageInfo", module = "fusion_kit", frozen)]
+#[pyclass(name = "PackageInfo", module = "buildf3d", frozen)]
 pub struct PyPackageInfo {
     pub(crate) inner: Arc<PackageInfo>,
 }

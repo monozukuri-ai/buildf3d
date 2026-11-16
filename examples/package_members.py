@@ -6,8 +6,8 @@ import json
 from pathlib import Path
 from typing import Literal, TypedDict
 
-import fusion_kit
-from fusion_kit.types import Status
+import buildf3d
+from buildf3d.types import Status
 
 
 class MemberSummary(TypedDict):
@@ -19,7 +19,7 @@ class MemberSummary(TypedDict):
 
 
 def summarize(path: Path) -> list[MemberSummary]:
-    archive = fusion_kit.readfile(path, strict=False)
+    archive = buildf3d.readfile(path, strict=False)
     package = archive.read_package()
     rows: list[MemberSummary] = []
     for doc in package.documents:

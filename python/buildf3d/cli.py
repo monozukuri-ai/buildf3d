@@ -62,7 +62,7 @@ def _failure(error: BaseException, source: str | None) -> tuple[ErrorJSON, ExitC
 
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
-    parser = _Parser(prog="fusion-kit")
+    parser = _Parser(prog="buildf3d")
     parser.add_argument("--version", action="version", version=__version__)
     commands = parser.add_subparsers(dest="command", required=True)
     for command in ("inspect", "verify"):

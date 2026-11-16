@@ -6,16 +6,16 @@ import importlib.resources
 import tomllib
 from pathlib import Path
 
-import fusion_kit
+import buildf3d
 import pytest
-from fusion_kit import Limits, _native
+from buildf3d import Limits, _native
 
 
 def test_distribution_binding_and_core_share_workspace_version():
     manifest = Path(__file__).resolve().parents[2] / "Cargo.toml"
     expected = tomllib.loads(manifest.read_text())["workspace"]["package"]["version"]
-    assert fusion_kit.__version__ == expected
-    assert importlib.metadata.version("fusion-kit") == expected
+    assert buildf3d.__version__ == expected
+    assert importlib.metadata.version("buildf3d") == expected
     assert _native.__version__ == expected
     assert _native.__core_version__ == expected
 
@@ -25,10 +25,12 @@ def test_native_extension_and_typing_files_are_installed():
         _native.__file__.endswith(suffix)
         for suffix in importlib.machinery.EXTENSION_SUFFIXES
     )
-    package = importlib.resources.files("fusion_kit")
+    package = importlib.resources.files("buildf3d")
     for name in ("py.typed", "__init__.pyi", "_native.pyi"):
         assert package.joinpath(name).is_file(), name
-    assert fusion_kit.Limits is _native.Limits
+    assert buildf3d.Limits is _native.Limits
+    for name in ("Archive", "Limits", "DocumentInfo", "PackageInfo", "FusionError"):
+        assert getattr(buildf3d, name).__module__ == "buildf3d"
 
 
 def test_resource_policy_defaults_and_keyword_overrides():

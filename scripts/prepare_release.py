@@ -20,7 +20,7 @@ def check_tag(tag):
 
 
 def published_files():
-    url = f"https://pypi.org/pypi/fusion-kit/{VERSION}/json"
+    url = f"https://pypi.org/pypi/buildf3d/{VERSION}/json"
     try:
         with urllib.request.urlopen(url, timeout=30) as response:
             metadata = json.load(response)

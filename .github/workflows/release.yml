@@ -69,7 +69,7 @@ jobs:
     timeout-minutes: 10
     environment:
       name: pypi
-      url: https://pypi.org/p/fusion-kit
+      url: https://pypi.org/p/buildf3d
     permissions:
       contents: read
       id-token: write

@@ -6,7 +6,7 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
-import fusion_kit as fusion
+import buildf3d as fusion
 import pytest
 
 from .manifest_fixtures import DOC, PNG, document
@@ -401,7 +401,7 @@ def test_cli_package_scope_and_exit_code(case, expected, tmp_path):
             sys.executable,
             "-I",
             "-m",
-            "fusion_kit",
+            "buildf3d",
             "inspect",
             str(path),
             "--package",
